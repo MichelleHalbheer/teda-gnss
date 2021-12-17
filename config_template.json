@@ -1,17 +1,17 @@
 {
   "interval": 10,
-  "prev_check": "today",
+  "prev_check": 3500,
   "exporter_commented": {
-	
   },
    "exporter": {
     "local": {
       "type": "FileExporter",
       "config": {
-        "folder": "C:\\Users\\mike\\OneDrive\\Terradata\\TEDA_GNSS_Program\\Downloads"
+        "folder": ".\\Exports"
       }
     }
   },
+  "tmp_path": ".\\tmp",
   "devices": {
     "teda_gnss_000": {
       "type": "IntervalReachPlusDevice",

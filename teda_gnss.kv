@@ -1,0 +1,91 @@
+WindowManager:
+    id: window_manger
+
+    ConversionForm:
+    AcknowledgeScreen:
+
+<ConversionForm@Screen>:
+    name: "conversion_form"
+    MDBoxLayout:
+        orientation: "vertical"
+
+        MDToolbar:
+            title: app.title
+            canvas:
+                Rectangle:
+                    source: 'terradata.png'
+                    pos: (((self.parent.size[0])/2)-30,self.pos[1])
+                    size: (249, 46.5)
+
+        MDBoxLayout:
+            orientation: "vertical"
+            spacing: 100
+
+            MDTextField:
+                id: point_name
+                hint_text: "Punktname eingeben"
+                helper_text: "Pflichtfeld"
+                helper_text_mode: "persistent"
+                required: True
+
+            MDTextField:
+                id: anteanna height
+                hint_text: "Antennenhöhe eingeben [m]"
+                helper_text: "Pflichtfeld"
+                helper_text_mode: "persistent"
+                input_type: "number"
+                required: True
+
+            MDRoundFlatIconButton:
+                id: select_file
+                text: "Beobachtungsdatei auswählen"
+                size_hint: 0.5, 0.1
+                size: 0.5, 0.1
+                icon: "folder"
+                pos_hint: {'center_x': .5, 'center_y': .6}
+                on_release: app.file_manager_open()
+
+            MDRoundFlatIconButton:
+                id: select_file
+                text: "Konvertieren und abspeichern"
+                size_hint: 0.5, 0.1
+                size: 0.5, 0.1
+                icon: "folder"
+                pos_hint: {'center_x': .5, 'center_y': .6}
+                on_release: app.parse_file()
+
+            
+
+            
+            
+
+
+    
+<AcknowledgeScreen@Screen>:
+    name: "acknowledge_screen"
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+    MDToolbar:
+        title: "Terradata GNSS Converter"
+
+<LoadDialog>:
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+            filters: [lambda folder, filename: not filename.endswith('') or filename.endswith('.zip')]
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: "Cancel"
+                on_release: root.cancel()
+
+            Button:
+                text: "Load"
+                on_release: root.load(filechooser.path, filechooser.selection)
