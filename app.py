@@ -15,7 +15,7 @@ from kivy.clock import Clock
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
 from kivymd.uix.picker import MDDatePicker
-from kivymd.uix.button import MDFlatButton
+from kivymd.uix.button import MDFlatButton, MDRaisedButton
 from kivymd.uix.dialog import MDDialog
 
 from datetime import datetime
@@ -31,20 +31,10 @@ from app_config.theming import *
 class ConversionForm(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._on_enter_trig = trig = Clock.create_trigger(self._my_on_enter)
-        self.bind(on_enter=trig)
-
-    def _my_on_enter(self, *args):
-            print(self.ids)
 
 class AcknowledgeScreen(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._on_enter_trig = trig = Clock.create_trigger(self._my_on_enter)
-        self.bind(on_enter=trig)
-
-    def _my_on_enter(self, *args):
-            print(self.ids)
 
 class WindowManager(ScreenManager):
     pass
@@ -64,6 +54,8 @@ class TEDAGNSS(MDApp):
         self._file_name = None
         self._obs_date = None
         self._recording_date = None
+        self._handler = None
+        self._project_number = None
 
         f = open(os.path.join(os.path.dirname(__file__), 'config_template.json'))
         self._config = json.load(f)
@@ -88,12 +80,29 @@ class TEDAGNSS(MDApp):
                     )
                 ],
             )
+        
+        self.success_dialog = MDDialog(
+                text='Konversion erfolgreich.',
+                buttons=[
+                    MDFlatButton(
+                        text="FERTIG",
+                        theme_text_color="Custom",
+                        text_color=self.theme_cls.primary_color,
+                        on_release=self.dismiss_success_dialog
+                    ),
+                    MDFlatButton(
+                        text="WEITERE MESSUNGEN FÜR GLEICHEN PUNKT",
+                        theme_text_color="Custom",
+                        text_color=self.theme_cls.primary_color,
+                        on_release=self.dismiss_success_dialog_add_more
+                    )
+                ],
+            )
 
     def build(self):
         self.theme_cls.primary_palette = "Blue"
         
         self.root = Builder.load_file(os.path.join(os.path.dirname(__file__), 'teda_gnss.kv'))
-        pass
 
     def file_manager_open(self):
         self.file_manager.show(os.path.dirname(__file__))  # output manager to the screen
@@ -106,7 +115,18 @@ class TEDAGNSS(MDApp):
         :type path: str;
         :param path: path to the selected directory or file;
         '''
-
+        # file_name = path[path.rindex('\\')+1:]
+        # if not self._file_path:
+        #     self._file_path = [path]
+        #     self._file_name = [file_name]
+        # else:
+        #     self._file_path.append(path)
+        #     self._file_name.append(file_name)
+        
+        
+        # self.root.current_screen.ids.select_file.text = ', '.join(self._file_name)
+        # self.exit_manager()
+        # toast(path)
         self._file_path = path
         self._file_name = self._file_path[self._file_path.rindex('\\')+1:]
         self.root.current_screen.ids.select_file.text = self._file_name
@@ -137,7 +157,21 @@ class TEDAGNSS(MDApp):
     #     date_dialog.open()
 
     def parse_file(self):
+
         error_list = []
+
+        if self.root.current_screen.ids.project_number.text:
+            match = re.match(
+                r"^\d{5}\.\d{2}$",
+                self.root.current_screen.ids.project_number.text
+            )
+            if match:
+                self._project_number = self.root.current_screen.ids.project_number.text
+            else:
+                error_list.append('eine gültige Projektnummer')
+        else:
+            error_list.append('eine gültige Projektnummer')
+
         if self.root.current_screen.ids.point_name.text:
             self._point_name = self.root.current_screen.ids.point_name.text
         else:
@@ -152,27 +186,21 @@ class TEDAGNSS(MDApp):
             error_list.append('eine gültige Antennenhöhe')
             
         if self.root.current_screen.ids.observation_date.text:
-            match = re.match(
-                r"^([0-9]{4})-?(1[0-2]|0[1-9])-?(3[01]|0[1-9]|[12][0-9])$",
-                self.root.current_screen.ids.observation_date.text
-            )
-            if match:
-                try:
-                    self._obs_date = datetime.strptime(
-                        self.root.current_screen.ids.observation_date.text,
-                        '%Y-%m-%d'    
-                    )
-                except ValueError:
-                    error_list.append('ein gültiges Beobachtungsdatum')
-            else:
+            try:
+                self._obs_date = datetime.strptime(
+                    self.root.current_screen.ids.observation_date.text,
+                    '%Y-%m-%d'    
+                )
+            except ValueError:
                 error_list.append('ein gültiges Beobachtungsdatum')
         else:
                 error_list.append('ein gültiges Beobachtungsdatum')
 
         if not error_list and self._file_path:
-            handler = ReachHandler(name=self._point_name)
-            handler.parse_file(self._file_path, self._config, self._obs_date)
-
+            if not self._handler:
+                self._handler = ReachHandler(name=self._point_name)
+            self._handler.parse_file(self._file_path, self._config, self._obs_date, self._antenna_height, self._project_number)
+            self.success_dialog.open()
         else:
             self.show_error_dialog(error_list)
 
@@ -185,6 +213,26 @@ class TEDAGNSS(MDApp):
     def dismiss_error_dialog(self, *args):
         self.error_dialog.dismiss()
 
+    def dismiss_success_dialog(self, *args):
+        self._handler.zip_exports(self._config, self._project_number, self._obs_date)
+
+        self._file_name, self._obs_date, self._antenna_height, self._point_name = [None]*4
+        
+        self.root.current_screen.ids.point_name.text = 'Punktname eingeben'
+        self.root.current_screen.ids.antenna_height.text = 'Antennenhöhe eingeben [m]'
+        self.root.current_screen.ids.observation_date.text = 'Beobachtungsdatum (YYYY-MM-DD)'
+        self.root.current_screen.ids.select_file.text = 'Beobachtungsdatei auswählen'
+
+        self._handler = None
+
+        self.success_dialog.dismiss()
+
+    def dismiss_success_dialog_add_more(self, *args):
+        self._file_name = None
+
+        self.root.current_screen.ids.select_file.text = 'Beobachtungsdatei auswählen'
+
+        self.success_dialog.dismiss()
 
 def main(config_file):
     root = os.path.dirname(__file__)

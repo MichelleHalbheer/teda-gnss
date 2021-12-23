@@ -3,14 +3,7 @@
   "prev_check": 3500,
   "exporter_commented": {
   },
-   "exporter": {
-    "local": {
-      "type": "FileExporter",
-      "config": {
-        "folder": ".\\Exports"
-      }
-    }
-  },
+  "export_folder": ".\\Exports",
   "tmp_path": ".\\tmp",
   "devices": {
     "teda_gnss_000": {

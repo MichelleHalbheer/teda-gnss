@@ -14,7 +14,6 @@ WindowManager:
             title: app.title
             Image:
                 source: 'terradata.png'
-                #pos: (((self.parent.size[0])/2)-30,self.pos[1])
                 width:250
                 keep_ratio: True
                 size_hint_x: None
@@ -24,6 +23,14 @@ WindowManager:
             orientation: "tb-lr"
             padding: "20dp"
             spacing: "20dp"
+
+            MDTextField:
+                id: project_number
+                hint_text: "Projektnummer eingeben"
+                helper_text: "Pflichtfeld"
+                helper_text_mode: "persistent"
+                required: True
+                size_hint: 1, None
 
             MDTextField:
                 id: point_name
@@ -64,13 +71,6 @@ WindowManager:
                 icon: "arrow-right-bold"
                 pos_hint: {'center_x': .5, 'center_y': .6}
                 on_release: app.parse_file()
-
-            
-
-            
-            
-
-
     
 <AcknowledgeScreen@Screen>:
     name: "acknowledge_screen"
@@ -80,23 +80,3 @@ WindowManager:
 
     MDToolbar:
         title: "Terradata GNSS Converter"
-
-<LoadDialog>:
-    BoxLayout:
-        size: root.size
-        pos: root.pos
-        orientation: "vertical"
-        FileChooserListView:
-            id: filechooser
-            filters: [lambda folder, filename: not filename.endswith('') or filename.endswith('.zip')]
-
-        BoxLayout:
-            size_hint_y: None
-            height: 30
-            Button:
-                text: "Cancel"
-                on_release: root.cancel()
-
-            Button:
-                text: "Load"
-                on_release: root.load(filechooser.path, filechooser.selection)
