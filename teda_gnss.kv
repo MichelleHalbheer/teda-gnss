@@ -8,18 +8,22 @@ WindowManager:
     name: "conversion_form"
     MDBoxLayout:
         orientation: "vertical"
+        spacing: "20dp"
 
         MDToolbar:
             title: app.title
-            canvas:
-                Rectangle:
-                    source: 'terradata.png'
-                    pos: (((self.parent.size[0])/2)-30,self.pos[1])
-                    size: (249, 46.5)
+            Image:
+                source: 'terradata.png'
+                #pos: (((self.parent.size[0])/2)-30,self.pos[1])
+                width:250
+                keep_ratio: True
+                size_hint_x: None
+                pos_hint: {"center_x":0.5, "center_y": 0.5}
 
-        MDBoxLayout:
-            orientation: "vertical"
-            spacing: 100
+        MDStackLayout:
+            orientation: "tb-lr"
+            padding: "20dp"
+            spacing: "20dp"
 
             MDTextField:
                 id: point_name
@@ -27,30 +31,37 @@ WindowManager:
                 helper_text: "Pflichtfeld"
                 helper_text_mode: "persistent"
                 required: True
+                size_hint: 1, None
 
             MDTextField:
-                id: anteanna height
+                id: antenna_height
                 hint_text: "Antennenhöhe eingeben [m]"
                 helper_text: "Pflichtfeld"
                 helper_text_mode: "persistent"
-                input_type: "number"
                 required: True
+                size_hint: 1, None
+
+            MDTextField:
+                id: observation_date
+                hint_text: "Beobachtungsdatum (YYYY-MM-DD)"
+                helper_text: "Pflichtfeld"
+                helper_text_mode: "persistent"
+                required: True
+                size_hint: 1, None
 
             MDRoundFlatIconButton:
                 id: select_file
                 text: "Beobachtungsdatei auswählen"
-                size_hint: 0.5, 0.1
-                size: 0.5, 0.1
+                size_hint: 1, None
                 icon: "folder"
                 pos_hint: {'center_x': .5, 'center_y': .6}
                 on_release: app.file_manager_open()
 
             MDRoundFlatIconButton:
-                id: select_file
+                id: submit
                 text: "Konvertieren und abspeichern"
-                size_hint: 0.5, 0.1
-                size: 0.5, 0.1
-                icon: "folder"
+                size_hint: 1, None
+                icon: "arrow-right-bold"
                 pos_hint: {'center_x': .5, 'center_y': .6}
                 on_release: app.parse_file()
 
