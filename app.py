@@ -158,32 +158,32 @@ class TEDAGNSS(MDApp):
 
     def parse_file(self):
 
-        error_list = []
+        error_dict = {} # = []
+        error_messages = {
+            'project_number': 'eine gültige Projektnummer',
+            'point_name': 'einen Punktnamen',
+            'antenna_height': 'eine gültige Antennenhöhe',
+            'obs_date': 'ein gültiges Beobachtungsdatum',
+            'file_path': 'und wähle eine Beobachtungsdatei aus'
+        }
 
         if self.root.current_screen.ids.project_number.text:
-            match = re.match(
-                r"^\d{5}\.\d{2}$",
-                self.root.current_screen.ids.project_number.text
-            )
-            if match:
-                self._project_number = self.root.current_screen.ids.project_number.text
-            else:
-                error_list.append('eine gültige Projektnummer')
+            self._project_number = self.root.current_screen.ids.project_number.text
         else:
-            error_list.append('eine gültige Projektnummer')
+            error_dict['project_number'] = error_messages['project_number']
 
         if self.root.current_screen.ids.point_name.text:
             self._point_name = self.root.current_screen.ids.point_name.text
         else:
-            error_list.append('einen Punktnamen')
+            error_dict['point_name'] = error_messages['point_name']
         
         if self.root.current_screen.ids.antenna_height.text:
             try:
                 self._antenna_height = float(self.root.current_screen.ids.antenna_height.text)
             except ValueError:
-                error_list.append('eine gültige Antennenhöhe')
+                error_dict['antenna_height'] = error_messages['antenna_height']
         else:
-            error_list.append('eine gültige Antennenhöhe')
+            error_dict['antenna_height'] = error_messages['antenna_height']
             
         if self.root.current_screen.ids.observation_date.text:
             try:
@@ -192,21 +192,24 @@ class TEDAGNSS(MDApp):
                     '%Y-%m-%d'    
                 )
             except ValueError:
-                error_list.append('ein gültiges Beobachtungsdatum')
+                error_dict['obs_date'] = error_messages['obs_date']
         else:
-                error_list.append('ein gültiges Beobachtungsdatum')
+            error_dict['obs_date'] = error_messages['obs_date']
 
-        if not error_list and self._file_path:
+        if not self._file_path:
+            error_dict['file_path'] = error_messages['file_path']
+
+        if not error_dict:
             if not self._handler:
                 self._handler = ReachHandler(name=self._point_name)
             self._handler.parse_file(self._file_path, self._config, self._obs_date, self._antenna_height, self._project_number)
             self.success_dialog.open()
         else:
-            self.show_error_dialog(error_list)
+            self.show_error_dialog(error_dict)
 
-    def show_error_dialog(self, error_list):
-        file_path_text = ' und wähle ein Beobachtungsfile aus' if not self._file_path else ''
-        error_text = f'Gib {", ".join(error_list)} ein{file_path_text}.'
+    def show_error_dialog(self, error_dict):
+        error_list = [value for key, value in error_dict.items() if key is not 'file_path']
+        error_text = f'Gib {", ".join(error_list)} ein {error_dict["file_path"] if "file_path" in error_dict.keys() else ""}.'
         self.error_dialog.text = error_text
         self.error_dialog.open()
 
