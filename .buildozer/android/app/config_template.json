@@ -1,0 +1,34 @@
+{
+  "interval": 10,
+  "prev_check": 3500,
+  "exporter_commented": {
+  },
+  "export_folder": ".\\Exports",
+  "tmp_path": ".\\tmp",
+  "devices": {
+    "teda_gnss_000": {
+      "type": "IntervalReachPlusDevice",
+      "config": {
+        "url": "10.10.3.143",
+        "name": "CR",
+        "export_start": "2021-12-15 06:15",
+        "export_interval": 10,
+        "export_format": "ubx"
+      }
+    }
+  },
+  "projects_comment": {
+    "test": {
+      "ref": "teda_gnss_000",
+      "rovers": [
+        "teda_gnss_001",
+        "teda_gnss_002",
+        "teda_gnss_003",
+        "teda_gnss_004"
+      ],
+      "export": [
+        "swiss_monitor_ftp"
+      ]
+    }
+  }
+}

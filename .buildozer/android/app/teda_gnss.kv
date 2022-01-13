@@ -1,0 +1,82 @@
+WindowManager:
+    id: window_manger
+
+    ConversionForm:
+    AcknowledgeScreen:
+
+<ConversionForm@Screen>:
+    name: "conversion_form"
+    MDBoxLayout:
+        orientation: "vertical"
+        spacing: "20dp"
+
+        MDToolbar:
+            title: app.title
+            # Image:
+            #     source: 'terradata.png'
+            #     width:250
+            #     keep_ratio: True
+            #     size_hint_x: None
+            #     pos_hint: {"center_x":0.5, "center_y": 0.5}
+
+        MDStackLayout:
+            orientation: "tb-lr"
+            padding: "20dp"
+            spacing: "20dp"
+
+            MDTextField:
+                id: project_number
+                hint_text: "Projektnummer eingeben"
+                helper_text: "Pflichtfeld"
+                helper_text_mode: "persistent"
+                required: True
+                size_hint: 1, None
+
+            MDTextField:
+                id: point_name
+                hint_text: "Punktname eingeben"
+                helper_text: "Pflichtfeld"
+                helper_text_mode: "persistent"
+                required: True
+                size_hint: 1, None
+
+            MDTextField:
+                id: antenna_height
+                hint_text: "Antennenhöhe eingeben [m]"
+                helper_text: "Pflichtfeld"
+                helper_text_mode: "persistent"
+                required: True
+                size_hint: 1, None
+
+            MDTextField:
+                id: observation_date
+                hint_text: "Beobachtungsdatum (YYYY-MM-DD)"
+                helper_text: "Pflichtfeld"
+                helper_text_mode: "persistent"
+                required: True
+                size_hint: 1, None
+
+            MDRoundFlatIconButton:
+                id: select_file
+                text: "Beobachtungsdatei auswählen"
+                size_hint: 1, None
+                icon: "folder"
+                pos_hint: {'center_x': .5, 'center_y': .6}
+                on_release: app.file_manager_open()
+
+            MDRoundFlatIconButton:
+                id: submit
+                text: "Konvertieren und abspeichern"
+                size_hint: 1, None
+                icon: "arrow-right-bold"
+                pos_hint: {'center_x': .5, 'center_y': .6}
+                on_release: app.parse_file()
+    
+<AcknowledgeScreen@Screen>:
+    name: "acknowledge_screen"
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+    MDToolbar:
+        title: "Terradata GNSS Converter"
