@@ -48,15 +48,20 @@ class ReachHandler(GnssDevice):
                 'antenna_height': antenna_height
             }
 
-            with open(os.path.join(config.get('export_folder'), meta_name), 'w') as meta_file:
-                json.dump(meta_dict, meta_file)
+            # if not os.path.exists(config.get('export_folder')):
+            #     os.makedirs(config.get('export_folder'))
 
+            
             exporter.store(
                 open(export_file, 'rb'),
                 file_name
             )
             self._last_export = recording_time
             os.remove(export_file)
+
+            with open(os.path.join(config.get('export_folder'), meta_name), 'w+') as meta_file:
+                json.dump(meta_dict, meta_file)
+
 
     def zip_exports(self, config, project_number, obs_date):
         export_dir = f'{config.get("export_folder")}\\{self._name}'

@@ -26,8 +26,6 @@ import re
 
 from file_handler import ReachHandler
 
-from app_config.theming import *
-
 class ConversionForm(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

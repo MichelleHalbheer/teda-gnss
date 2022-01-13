@@ -8,7 +8,7 @@ import json
 
 from zipfile import ZipFile
 
-from main import GnssDevice
+from gnss_device import GnssDevice
 
 TMP_FOLDER = 'tmp_storage'
 
