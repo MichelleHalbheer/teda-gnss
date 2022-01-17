@@ -17,6 +17,8 @@ from kivy.uix.popup import Popup
 from kivymd.uix.picker import MDDatePicker
 from kivymd.uix.button import MDFlatButton, MDRaisedButton
 from kivymd.uix.dialog import MDDialog
+from android.storage import primary_external_storage_path
+from android.permissions import request_permissions, Permission
 
 from datetime import datetime
 import sys
@@ -25,8 +27,6 @@ import os
 import re
 
 from file_handler import ReachHandler
-
-from app_config.theming import *
 
 class ConversionForm(MDScreen):
     def __init__(self, **kwargs):
@@ -98,6 +98,9 @@ class TEDAGNSS(MDApp):
                     )
                 ],
             )
+        
+        request_permissions([Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE])
+        self.primary_external_storage_path = primary_external_storage_path()
 
     def build(self):
         self.theme_cls.primary_palette = "Blue"
@@ -105,7 +108,8 @@ class TEDAGNSS(MDApp):
         self.root = Builder.load_file(os.path.join(os.path.dirname(__file__), 'teda_gnss.kv'))
 
     def file_manager_open(self):
-        self.file_manager.show(os.path.dirname(__file__))  # output manager to the screen
+        #print(primary_external_storage_path)
+        self.file_manager.show(self.primary_external_storage_path) # output manager to the screen
         self.manager_open = True
 
     def select_path(self, path):

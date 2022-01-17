@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Terradata GNSS Parser</string>
-    <string name="private_version">303b6056564e6d53959ee7f57d6fa9f6e0fc1032</string>
+    <string name="private_version">dbfa42ea2b871b10f03c6a2b206f3bd41cde5fcf</string>
     <string name="presplash_color">#000000</string>
     <string name="urlScheme">kivy</string>
 </resources>

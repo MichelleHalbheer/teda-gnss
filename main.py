@@ -108,7 +108,8 @@ class TEDAGNSS(MDApp):
         self.root = Builder.load_file(os.path.join(os.path.dirname(__file__), 'teda_gnss.kv'))
 
     def file_manager_open(self):
-        self.file_manager.show(primary_external_storage_path)  # output manager to the screen
+        #print(primary_external_storage_path)
+        self.file_manager.show(self.primary_external_storage_path) # output manager to the screen
         self.manager_open = True
 
     def select_path(self, path):
