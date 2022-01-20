@@ -2,6 +2,9 @@ import errno
 from ftplib import FTP
 import os
 
+from android.storage import app_storage_path#primary_external_storage_path
+from android.permissions import request_permissions, Permission
+
 from forge import forge_function
 from gnss_device import GnssDevice
 from emlid.reach_device import *
@@ -36,11 +39,15 @@ class FileExporter(Exporter):
         Exports file to OS directory
         :param folder:
         """
-        self._folder = folder
+        #request_permissions([Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE])
+        self._folder = app_storage_path()
+        print(self._folder)
+
 
     def store(self, file, file_name):
         # Define file path
-        file_path = self._folder + "\\" + file_name
+        print(self._folder, file_name)
+        file_path = os.path.join(self._folder, file_name)
         # create directories if not exist
         if not os.path.exists(os.path.dirname(file_path)):
             try:

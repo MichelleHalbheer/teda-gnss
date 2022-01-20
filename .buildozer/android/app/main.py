@@ -91,7 +91,7 @@ class TEDAGNSS(MDApp):
                         on_release=self.dismiss_success_dialog
                     ),
                     MDFlatButton(
-                        text="WEITERE MESSUNGEN FÜR GLEICHEN PUNKT",
+                        text="WEITERE MESSUNGEN",
                         theme_text_color="Custom",
                         text_color=self.theme_cls.primary_color,
                         on_release=self.dismiss_success_dialog_add_more
@@ -132,7 +132,7 @@ class TEDAGNSS(MDApp):
         # self.exit_manager()
         # toast(path)
         self._file_path = path
-        self._file_name = self._file_path[self._file_path.rindex('\\')+1:]
+        self._file_name = os.path.basename(self._file_path)
         self.root.current_screen.ids.select_file.text = self._file_name
         self.exit_manager()
         toast(path)

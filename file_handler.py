@@ -7,6 +7,8 @@ import json
 from zipfile import ZipFile
 import zipfile
 
+from android.storage import app_storage_path, primary_external_storage_path
+
 from gnss_device import GnssDevice
 from export_handler import FileExporter
 
@@ -28,7 +30,7 @@ class ReachHandler(GnssDevice):
         """
         # If new day, set index 0, otherwise increase index
         self._export_id = 1 if self._last_export.day != request_time.day else self._export_id + 1
-        return f'{self._name}\\{request_time.year - 2000}{request_time.month:02d}{request_time.day:02d}{self._name}.{self._export_id - 1:03d}'
+        return os.path.join(f'{self._name}', f'{request_time.year - 2000}{request_time.month:02d}{request_time.day:02d}{self._name}.{self._export_id - 1:03d}')
 
     def parse_file(self, file_path, config, recording_time, antenna_height, project_number):
         extract_path = config.get('tmp_path')
@@ -37,7 +39,7 @@ class ReachHandler(GnssDevice):
         zip_file = ZipFile(file_path)
         zip_file.extractall(extract_path)
         for export_file in glob.glob(extract_path + '/*'):
-            exporter = FileExporter(config.get('export_folder'))
+            exporter = FileExporter(os.path.dirname(os.path.abspath(file_path)))
 
             file_name = self.ubx_name(recording_time, export_file)
             meta_name = f'{file_name[:-4]}.json'
@@ -59,15 +61,15 @@ class ReachHandler(GnssDevice):
             self._last_export = recording_time
             os.remove(export_file)
 
-            with open(os.path.join(config.get('export_folder'), meta_name), 'w+') as meta_file:
+            with open(os.path.join(app_storage_path(), meta_name), 'w+') as meta_file:
                 json.dump(meta_dict, meta_file)
 
 
     def zip_exports(self, config, project_number, obs_date):
-        export_dir = f'{config.get("export_folder")}\\{self._name}'
+        export_dir = os.path.join(app_storage_path(), self._name) #f'{config.get("export_folder")}\\{self._name}'
         
         date_string = datetime.datetime.strftime(obs_date, '%y%m%d')
-        zip_dir = f'{config.get("export_folder")}\\{project_number}_{self._name}_{date_string}.zip'
+        zip_dir = os.path.join(primary_external_storage_path(), 'Documents', f'teda_parser-{project_number}_{self._name}_{date_string}.zip')
 
         zip_file = ZipFile(zip_dir, 'w', zipfile.ZIP_DEFLATED)
         for root, dirs, files in os.walk(export_dir):
