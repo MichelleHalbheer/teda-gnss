@@ -41,12 +41,10 @@ class FileExporter(Exporter):
         """
         #request_permissions([Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE])
         self._folder = app_storage_path()
-        print(self._folder)
 
 
     def store(self, file, file_name):
         # Define file path
-        print(self._folder, file_name)
         file_path = os.path.join(self._folder, file_name)
         # create directories if not exist
         if not os.path.exists(os.path.dirname(file_path)):

@@ -318,6 +318,21 @@ class TEDAGNSS(MDApp):
 
         self.success_dialog.dismiss()
 
+    def show_confirm_reset_dialog(self) -> None:
+        '''
+        Builds the error message and displays it in a dialog
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        '''
+
+        self.confirm_finish_reset_dialog.open()
+
     def dismiss_confirm_reset_dialog_return(self, *args) -> None:
         '''
         Function to close the confirmation dialog and return to the same screen
@@ -345,9 +360,9 @@ class TEDAGNSS(MDApp):
         self._handler.zip_exports(self._config, self._project_number, self._obs_date)
 
         # Reset the variables storing the information
-        self._file_name, self._obs_date, self._antenna_height, self._point_name = [None]*4
+        self._file_name, self._obs_date, self._antenna_height, self._point_name, self._project_number = [None]*5
         
-        # Reset the screen so a new point can be parsed
+        # Reset the screen so a new point can be parsed        
         self.root.current_screen.ids.point_name.text = 'Punktname eingeben'
         self.root.current_screen.ids.antenna_height.text = 'Antennenhöhe eingeben [m]'
         self.root.current_screen.ids.observation_date.text = 'Beobachtungsdatum (YYYY-MM-DD)'
@@ -364,6 +379,10 @@ class TEDAGNSS(MDApp):
         # Reset the observation file
         self._file_name = None
         self.root.current_screen.ids.select_file.text = 'Beobachtungsdatei auswählen'
+        
+        # Show finish button and enable it
+        self.root.current_screen.ids.finish_point.opacity = 100
+        self.root.current_screen.ids.finish_point.disabled = False
 
         self.success_dialog.dismiss()
 

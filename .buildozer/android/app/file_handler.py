@@ -65,9 +65,12 @@ class ReachHandler(GnssDevice):
         export_dir = os.path.join(app_storage_path(), self._name)
         
         date_string = datetime.datetime.strftime(obs_date, '%y%m%d')
-        zip_dir = os.path.join(primary_external_storage_path(), 'Documents', f'teda_parser-{project_number}_{self._name}_{date_string}.zip')
+        zip_dir = os.path.join(primary_external_storage_path(), 'Documents', 'Terradata_GNNS_Parser_Exports')
+        if not os.path.exists(zip_dir):
+            os.makedirs(zip_dir)
+        zip_archive = os.path.join(zip_dir, f'teda_parser-{project_number}_{self._name}_{date_string}.zip')
 
-        zip_file = ZipFile(zip_dir, 'w', zipfile.ZIP_DEFLATED)
+        zip_file = ZipFile(zip_archive, 'w', zipfile.ZIP_DEFLATED)
         for root, dirs, files in os.walk(export_dir):
             for file in files:
                 zip_file.write(os.path.join(root, file),
