@@ -49,10 +49,6 @@ class ReachHandler(GnssDevice):
                 'point_name': self._name,
                 'antenna_height': antenna_height
             }
-
-            # if not os.path.exists(config.get('export_folder')):
-            #     os.makedirs(config.get('export_folder'))
-
             
             exporter.store(
                 open(export_file, 'rb'),
@@ -66,7 +62,7 @@ class ReachHandler(GnssDevice):
 
 
     def zip_exports(self, config, project_number, obs_date):
-        export_dir = os.path.join(app_storage_path(), self._name) #f'{config.get("export_folder")}\\{self._name}'
+        export_dir = os.path.join(app_storage_path(), self._name)
         
         date_string = datetime.datetime.strftime(obs_date, '%y%m%d')
         zip_dir = os.path.join(primary_external_storage_path(), 'Documents', f'teda_parser-{project_number}_{self._name}_{date_string}.zip')

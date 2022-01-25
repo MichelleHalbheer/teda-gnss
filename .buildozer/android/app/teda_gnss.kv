@@ -2,7 +2,6 @@ WindowManager:
     id: window_manger
 
     ConversionForm:
-    AcknowledgeScreen:
 
 <ConversionForm@Screen>:
     name: "conversion_form"
@@ -72,11 +71,3 @@ WindowManager:
                 pos_hint: {'center_x': .5, 'center_y': .6}
                 on_release: app.parse_file()
     
-<AcknowledgeScreen@Screen>:
-    name: "acknowledge_screen"
-
-    MDBoxLayout:
-        orientation: "vertical"
-
-    MDToolbar:
-        title: "Terradata GNSS Converter"

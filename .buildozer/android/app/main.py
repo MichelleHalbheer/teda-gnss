@@ -4,18 +4,13 @@ from kivy.properties import ObjectProperty
 
 from kivymd.app import MDApp
 from kivymd.uix.screen import MDScreen
-from kivymd.icon_definitions import md_icons
-from kivy.uix.screenmanager import Screen, ScreenManager
-from kivymd.uix.textfield import MDTextField
+from kivy.uix.screenmanager import ScreenManager
 from kivymd.toast import toast
-from kivy.factory import Factory
 from kivy.core.window import Window
 from kivymd.uix.filemanager import MDFileManager
-from kivy.clock import Clock
 from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.popup import Popup
 from kivymd.uix.picker import MDDatePicker
-from kivymd.uix.button import MDFlatButton, MDRaisedButton
+from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from android.storage import primary_external_storage_path
 from android.permissions import request_permissions, Permission
@@ -24,7 +19,6 @@ from datetime import datetime
 import sys
 import json
 import os
-import re
 
 from file_handler import ReachHandler
 
@@ -108,7 +102,7 @@ class TEDAGNSS(MDApp):
         self.root = Builder.load_file(os.path.join(os.path.dirname(__file__), 'teda_gnss.kv'))
 
     def file_manager_open(self):
-        #print(primary_external_storage_path)
+
         self.file_manager.show(self.primary_external_storage_path) # output manager to the screen
         self.manager_open = True
 
@@ -119,18 +113,7 @@ class TEDAGNSS(MDApp):
         :type path: str;
         :param path: path to the selected directory or file;
         '''
-        # file_name = path[path.rindex('\\')+1:]
-        # if not self._file_path:
-        #     self._file_path = [path]
-        #     self._file_name = [file_name]
-        # else:
-        #     self._file_path.append(path)
-        #     self._file_name.append(file_name)
-        
-        
-        # self.root.current_screen.ids.select_file.text = ', '.join(self._file_name)
-        # self.exit_manager()
-        # toast(path)
+
         self._file_path = path
         self._file_name = os.path.basename(self._file_path)
         self.root.current_screen.ids.select_file.text = self._file_name
@@ -162,7 +145,7 @@ class TEDAGNSS(MDApp):
 
     def parse_file(self):
 
-        error_dict = {} # = []
+        error_dict = {}
         error_messages = {
             'project_number': 'eine gültige Projektnummer',
             'point_name': 'einen Punktnamen',
@@ -251,14 +234,6 @@ def main(config_file):
     f.close()
     
     TEDAGNSS().run()
-    
-    # file_path = input('Enter path of file to be parsed:\t')
-    # name = input('Enter receiver name:\t')
-    # recording_time = datetime.strptime(input('Enter recording date (DD.MM.YYYY):\t'), '%d.%m.%Y')
-
-    # handler = ReachHandler(name=name)
-
-    # handler.parse_file(file_path, config, recording_time)
 
 if __name__ == '__main__':
     main(sys.argv[1] if len(sys.argv) > 1 else 'config_template.json')
