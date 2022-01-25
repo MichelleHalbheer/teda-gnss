@@ -22,26 +22,29 @@ import os
 
 from file_handler import ReachHandler
 
+## Define Screen for the app to use
 class ConversionForm(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-class AcknowledgeScreen(MDScreen):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
+## Define Window Manager which will manage Screen
 class WindowManager(ScreenManager):
     pass
 
-class LoadDialog(FloatLayout):
-    load = ObjectProperty(None)
-    cancel = ObjectProperty(None)
+#
+# class LoadDialog(FloatLayout):
+#     load = ObjectProperty(None)
+#     cancel = ObjectProperty(None)
 
+## Define App. This class includes everything the app does
 class TEDAGNSS(MDApp):
     title = "Terradata GNSS Converter"
 
     def __init__(self, **kwargs):
+        # Initializing app
         super().__init__(**kwargs)
+
+        # Define necessary variables
         self._point_name = None
         self._antenna_height = None
         self._file_path = None
@@ -51,10 +54,12 @@ class TEDAGNSS(MDApp):
         self._handler = None
         self._project_number = None
 
+        # Load config file
         f = open(os.path.join(os.path.dirname(__file__), 'config_template.json'))
         self._config = json.load(f)
         f.close()
 
+        # Bind for opening file manager
         Window.bind(on_keyboard=self.events)
         self.manager_open = False
         self.file_manager = MDFileManager(
@@ -63,8 +68,9 @@ class TEDAGNSS(MDApp):
             ext=['.zip']
         )
 
+        # Define error dialog
         self.error_dialog = MDDialog(
-                text='',
+                text='', # Define empty text since it will be filled dynamically
                 buttons=[
                     MDFlatButton(
                         text="SCHLIESSEN",
@@ -75,15 +81,18 @@ class TEDAGNSS(MDApp):
                 ],
             )
         
+        # Define success dialog
         self.success_dialog = MDDialog(
                 text='Konversion erfolgreich.',
                 buttons=[
+                    # Finish conversion for one point
                     MDFlatButton(
                         text="FERTIG",
                         theme_text_color="Custom",
                         text_color=self.theme_cls.primary_color,
                         on_release=self.dismiss_success_dialog
                     ),
+                    # Add more observations for the same point
                     MDFlatButton(
                         text="WEITERE MESSUNGEN",
                         theme_text_color="Custom",
@@ -93,19 +102,28 @@ class TEDAGNSS(MDApp):
                 ],
             )
         
+        # Android specific: Request permissions to read and write files
         request_permissions([Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE])
+        # Define storage path where app have writing rights on Android
         self.primary_external_storage_path = primary_external_storage_path()
 
+    # Build the app
     def build(self):
         self.theme_cls.primary_palette = "Blue"
         
+        # Load the app from the separate kivy definition file
         self.root = Builder.load_file(os.path.join(os.path.dirname(__file__), 'teda_gnss.kv'))
 
+    # Open the file manager
     def file_manager_open(self):
+        '''
+        Function to open the file manager
+        '''
 
         self.file_manager.show(self.primary_external_storage_path) # output manager to the screen
         self.manager_open = True
 
+    # Function to be called when a file is selected in the file manager
     def select_path(self, path):
         '''It will be called when you click on the file name
         or the catalog selection button.
