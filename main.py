@@ -10,13 +10,12 @@ from kivy.core.window import Window
 from kivymd.uix.filemanager import MDFileManager
 from kivy.uix.floatlayout import FloatLayout
 from kivymd.uix.picker import MDDatePicker
-from kivymd.uix.button import MDFlatButton
+from kivymd.uix.button import MDFlatButton, MDRaisedButton
 from kivymd.uix.dialog import MDDialog
 from android.storage import primary_external_storage_path
 from android.permissions import request_permissions, Permission
 
 from datetime import datetime
-import sys
 import json
 import os
 
@@ -30,11 +29,6 @@ class ConversionForm(MDScreen):
 ## Define Window Manager which will manage Screen
 class WindowManager(ScreenManager):
     pass
-
-#
-# class LoadDialog(FloatLayout):
-#     load = ObjectProperty(None)
-#     cancel = ObjectProperty(None)
 
 ## Define App. This class includes everything the app does
 class TEDAGNSS(MDApp):
@@ -98,6 +92,25 @@ class TEDAGNSS(MDApp):
                         theme_text_color="Custom",
                         text_color=self.theme_cls.primary_color,
                         on_release=self.dismiss_success_dialog_add_more
+                    )
+                ],
+            )
+
+        # Define confirmation and reset dialog
+        self.confirm_finish_reset_dialog = MDDialog(
+                text='Soll der Punkt wirklick abgeschlossen und die konvertierten Daten abgelegt werden?', # Define empty text since it will be filled dynamically
+                buttons=[
+                    MDFlatButton(
+                        text="ABBRECHEN",
+                        theme_text_color="Custom",
+                        text_color=self.theme_cls.primary_color,
+                        on_release=self.dismiss_confirm_reset_dialog_return
+                    ),
+                    MDRaisedButton(
+                        text="WEITER",
+                        theme_text_color="Custom",
+                        text_color=self.theme_cls.primary_color,
+                        on_release=self.dismiss_confirm_reset_dialog_finish
                     )
                 ],
             )
@@ -299,6 +312,32 @@ class TEDAGNSS(MDApp):
     def dismiss_success_dialog(self, *args) -> None:
         '''
         Function to dismiss the success dialog without adding more observation files.
+        '''
+
+        self.finish_point_reset()
+
+        self.success_dialog.dismiss()
+
+    def dismiss_confirm_reset_dialog_return(self, *args) -> None:
+        '''
+        Function to close the confirmation dialog and return to the same screen
+        '''
+        
+        self.confirm_finish_reset_dialog.dismiss()
+
+    def dismiss_confirm_reset_dialog_finish(self, *args) -> None:
+        '''
+        Function to close the confirmation dialgo and finish the point.
+        Will reset the screen.
+        '''
+
+        self.finish_point_reset()
+
+        self.confirm_finish_reset_dialog.dismiss()
+
+    def finish_point_reset(self) -> None:
+        '''
+        Function to finish conversion for a given point and date.
         This creates a zip archive from the previously parsed files and stores it in a persistent directory.
         '''
 
@@ -316,8 +355,6 @@ class TEDAGNSS(MDApp):
 
         # Remove the file handler as it is specific for any given point
         self._handler = None
-
-        self.success_dialog.dismiss()
 
     def dismiss_success_dialog_add_more(self, *args) -> None:
         '''

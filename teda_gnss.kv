@@ -70,4 +70,15 @@ WindowManager:
                 icon: "arrow-right-bold"
                 pos_hint: {'center_x': .5, 'center_y': .6}
                 on_release: app.parse_file()
+
+            MDRoundFlatIconButton:
+                id: finish_point
+                text: "Punkt abschliessen"
+                size_hint: 1, None
+                icon: "arrow-right-bold"
+                pos_hint: {'center_x': .5, 'center_y': .6}
+                on_release: app.finish_point_reset()
+
+            MDLabel:
+                text: "Dateien werden im interenen Gerätespeicher und ./Documents/Terradata_GNNS_Parser_Exports abgelegt" 
     
