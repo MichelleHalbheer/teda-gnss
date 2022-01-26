@@ -77,7 +77,7 @@ class TEDAGNSS(MDApp):
         
         # Define success dialog
         self.success_dialog = MDDialog(
-                text='Konversion erfolgreich. Zum abschliessen des Punktes Fertig drücken. Um weitere Messungen für denselben Punkt hinzuzufügen Weitere Messungen drücken.',
+                text='Konversion erfolgreich. Zum abschliessen des Punktes "Fertig" drücken. Um weitere Messungen für denselben Punkt am selben Datum hinzuzufügen "Weitere Messungen" drücken.',
                 buttons=[
                     # Finish conversion for one point
                     MDFlatButton(
@@ -114,6 +114,24 @@ class TEDAGNSS(MDApp):
                     )
                 ],
             )
+
+        self.input_changed_dialog = MDDialog(
+                text='Eine oder mehrere Eingaben haben sich geändert. Wenn du fortfährst wird der bisherige Punkt abgeschlossen und die Daten abgelegt. Möchtest du frotfahren', # Define empty text since it will be filled dynamically
+                buttons=[
+                    MDFlatButton(
+                        text="ABBRECHEN",
+                        theme_text_color="Custom",
+                        text_color=self.theme_cls.primary_color,
+                        on_release=self.dismiss_input_changed_dialog_return
+                    ),
+                    MDRaisedButton(
+                        text="WEITER",
+                        theme_text_color="Custom",
+                        text_color=self.theme_cls.primary_color,
+                        on_release=self.dismiss_input_changed_dialog_finish
+                    )
+                ],
+            )
         
         # Android specific: Request permissions to read and write files
         request_permissions([Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE])
@@ -121,6 +139,12 @@ class TEDAGNSS(MDApp):
         self.primary_external_storage_path = primary_external_storage_path()
 
     
+    def on_pause(self):
+        '''
+        Kivy function enabling the app to be paused when closing
+        '''
+        return True
+
     def build(self):
         '''
         Kivy function called to build the app
@@ -231,23 +255,33 @@ class TEDAGNSS(MDApp):
 
         # Check the project number
         if self.root.current_screen.ids.project_number.text:
-            self._project_number = self.root.current_screen.ids.project_number.text
+            if isinstance(self._project_number, str) and self._project_number != self.root.current_screen.ids.project_number.text:
+                self.input_change_confirmation()
+            else:
+                self._project_number = self.root.current_screen.ids.project_number.text
         else:
             error_list.append(error_messages['project_number'])
 
         # Check the point name
         if self.root.current_screen.ids.point_name.text:
-            self._point_name = self.root.current_screen.ids.point_name.text
+            if isinstance(self._point_name, str) and self._point_namer != self.root.current_screen.ids.point_name.text:
+                self.input_change_confirmation()
+            else:
+                self._point_name = self.root.current_screen.ids.point_name.text
         else:
             error_list.append(error_messages['point_name'])
         
         # Check the antenna height
         if self.root.current_screen.ids.antenna_height.text:
-            # Check the antenna height is a number
-            try:
-                self._antenna_height = float(self.root.current_screen.ids.antenna_height.text)
-            except ValueError:
-                error_list.append(error_messages['antenna_height'])
+                # Check the antenna height is a number
+                try:
+                    antenna_height = float(self.root.current_screen.ids.antenna_height.text)
+                    if isinstance(self._antenna_height, float) and self._antenna_height != antenna_height:
+                        self.input_change_confirmation()
+                    else:
+                        self._antenna_height = antenna_height
+                except ValueError:
+                    error_list.append(error_messages['antenna_height'])
         else:
             error_list.append(error_messages['antenna_height'])
             
@@ -256,10 +290,14 @@ class TEDAGNSS(MDApp):
             # Check if the date can be parsed to a date.
             # Currently only ISO8601 format is supported.
             try:
-                self._obs_date = datetime.strptime(
+                obs_date = datetime.strptime(
                     self.root.current_screen.ids.observation_date.text,
                     '%Y-%m-%d'    
                 )
+                if isinstance(self._obs_date, datetime.datetime) and self._obs_date != obs_date:
+                    self.input_change_confirmation()
+                else:
+                    self._obs_date = obs_date
             except ValueError:
                 error_list.append(error_messages['obs_date'])
         else:
@@ -279,6 +317,13 @@ class TEDAGNSS(MDApp):
         else:
             # If any error has been detected, show a dialog
             self.show_error_dialog(error_list)
+
+    def input_change_confirmation(self) -> None:
+        '''
+        Function to  prompt wether input change was on purpose
+        '''
+
+        self.input_changed_dialog.open()
 
     def show_error_dialog(self, error_list: list) -> None:
         '''
@@ -363,10 +408,10 @@ class TEDAGNSS(MDApp):
         self._file_name, self._obs_date, self._antenna_height, self._point_name, self._project_number = [None]*5
         
         # Reset the screen so a new point can be parsed        
-        self.root.current_screen.ids.point_name.text = 'Punktname eingeben'
-        self.root.current_screen.ids.antenna_height.text = 'Antennenhöhe eingeben [m]'
-        self.root.current_screen.ids.observation_date.text = 'Beobachtungsdatum (YYYY-MM-DD)'
-        self.root.current_screen.ids.select_file.text = 'Beobachtungsdatei auswählen'
+        self.root.current_screen.ids.point_name.text = None
+        self.root.current_screen.ids.antenna_height.text = None
+        self.root.current_screen.ids.observation_date.text = None
+        self.root.current_screen.ids.select_file.text = None
 
         # Remove the file handler as it is specific for any given point
         self._handler = None
@@ -385,6 +430,12 @@ class TEDAGNSS(MDApp):
         self.root.current_screen.ids.finish_point.disabled = False
 
         self.success_dialog.dismiss()
+
+    def dismiss_input_changed_dialog_return(self, *args) -> None:
+        pass
+
+    def dismiss_input_changed_dialog_finish(self, *args) -> None:
+        pass
 
 def main():    
     TEDAGNSS().run()
