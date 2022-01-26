@@ -154,6 +154,8 @@ class TEDAGNSS(MDApp):
         
         # Load the app from the separate kivy definition file
         self.root = Builder.load_file(os.path.join(os.path.dirname(__file__), 'teda_gnss.kv'))
+        
+        print(f'Default text:\t "{self.root.current_screen.ids.point_name.text}"')
 
 
     def file_manager_open(self) -> None:
@@ -264,7 +266,7 @@ class TEDAGNSS(MDApp):
 
         # Check the point name
         if self.root.current_screen.ids.point_name.text:
-            if isinstance(self._point_name, str) and self._point_namer != self.root.current_screen.ids.point_name.text:
+            if isinstance(self._point_name, str) and self._point_name != self.root.current_screen.ids.point_name.text:
                 self.input_change_confirmation()
             else:
                 self._point_name = self.root.current_screen.ids.point_name.text
@@ -294,7 +296,7 @@ class TEDAGNSS(MDApp):
                     self.root.current_screen.ids.observation_date.text,
                     '%Y-%m-%d'    
                 )
-                if isinstance(self._obs_date, datetime.datetime) and self._obs_date != obs_date:
+                if isinstance(self._obs_date, datetime) and self._obs_date != obs_date:
                     self.input_change_confirmation()
                 else:
                     self._obs_date = obs_date
@@ -408,10 +410,10 @@ class TEDAGNSS(MDApp):
         self._file_name, self._obs_date, self._antenna_height, self._point_name, self._project_number = [None]*5
         
         # Reset the screen so a new point can be parsed        
-        self.root.current_screen.ids.point_name.text = None
-        self.root.current_screen.ids.antenna_height.text = None
-        self.root.current_screen.ids.observation_date.text = None
-        self.root.current_screen.ids.select_file.text = None
+        self.root.current_screen.ids.point_name.text = ''
+        self.root.current_screen.ids.antenna_height.text = ''
+        self.root.current_screen.ids.observation_date.text = ''
+        self.root.current_screen.ids.select_file.text = 'Beobachtungsdatei auswählen'
 
         # Remove the file handler as it is specific for any given point
         self._handler = None
