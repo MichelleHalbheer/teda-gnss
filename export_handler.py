@@ -2,7 +2,7 @@ import errno
 from ftplib import FTP
 import os
 
-from android.storage import app_storage_path#primary_external_storage_path
+from android.storage import app_storage_path
 from android.permissions import request_permissions, Permission
 
 from forge import forge_function
@@ -39,7 +39,7 @@ class FileExporter(Exporter):
         Exports file to OS directory
         :param folder:
         """
-        #request_permissions([Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE])
+
         self._folder = app_storage_path()
 
 

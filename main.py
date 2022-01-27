@@ -12,12 +12,13 @@ from kivy.uix.floatlayout import FloatLayout
 from kivymd.uix.picker import MDDatePicker
 from kivymd.uix.button import MDFlatButton, MDRaisedButton
 from kivymd.uix.dialog import MDDialog
-from android.storage import primary_external_storage_path
+from android.storage import primary_external_storage_path, app_storage_path
 from android.permissions import request_permissions, Permission
 
 from datetime import datetime
 import json
 import os
+import glob
 
 from file_handler import ReachHandler
 
@@ -98,7 +99,7 @@ class TEDAGNSS(MDApp):
 
         # Define confirmation and reset dialog
         self.confirm_finish_reset_dialog = MDDialog(
-                text='Soll der Punkt wirklick abgeschlossen und die konvertierten Daten abgelegt werden?', # Define empty text since it will be filled dynamically
+                text='Soll der Punkt wirklick abgeschlossen und die konvertierten Daten abgelegt werden?',
                 buttons=[
                     MDFlatButton(
                         text="ABBRECHEN",
@@ -109,14 +110,13 @@ class TEDAGNSS(MDApp):
                     MDRaisedButton(
                         text="WEITER",
                         theme_text_color="Custom",
-                        text_color=self.theme_cls.primary_color,
                         on_release=self.dismiss_confirm_reset_dialog_finish
                     )
                 ],
             )
 
         self.input_changed_dialog = MDDialog(
-                text='Eine oder mehrere Eingaben haben sich geändert. Wenn du fortfährst wird der bisherige Punkt abgeschlossen und die Daten abgelegt. Möchtest du frotfahren', # Define empty text since it will be filled dynamically
+                text='Eine oder mehrere Eingaben haben sich geändert. Wenn du fortfährst wird der bisherige Punkt abgeschlossen und die Daten abgelegt. Möchtest du frotfahren',
                 buttons=[
                     MDFlatButton(
                         text="ABBRECHEN",
@@ -127,7 +127,6 @@ class TEDAGNSS(MDApp):
                     MDRaisedButton(
                         text="WEITER",
                         theme_text_color="Custom",
-                        text_color=self.theme_cls.primary_color,
                         on_release=self.dismiss_input_changed_dialog_finish
                     )
                 ],
@@ -137,6 +136,11 @@ class TEDAGNSS(MDApp):
         request_permissions([Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE])
         # Define storage path where app have writing rights on Android
         self.primary_external_storage_path = primary_external_storage_path()
+
+        # Purge app storage path
+        app_storage_files = glob.glob(app_storage_path())
+        for file in app_storage_files:
+            os.remove(file)
 
     
     def on_pause(self):
@@ -259,6 +263,7 @@ class TEDAGNSS(MDApp):
         if self.root.current_screen.ids.project_number.text:
             if isinstance(self._project_number, str) and self._project_number != self.root.current_screen.ids.project_number.text:
                 self.input_change_confirmation()
+                return
             else:
                 self._project_number = self.root.current_screen.ids.project_number.text
         else:
@@ -268,6 +273,7 @@ class TEDAGNSS(MDApp):
         if self.root.current_screen.ids.point_name.text:
             if isinstance(self._point_name, str) and self._point_name != self.root.current_screen.ids.point_name.text:
                 self.input_change_confirmation()
+                return
             else:
                 self._point_name = self.root.current_screen.ids.point_name.text
         else:
@@ -280,6 +286,7 @@ class TEDAGNSS(MDApp):
                     antenna_height = float(self.root.current_screen.ids.antenna_height.text)
                     if isinstance(self._antenna_height, float) and self._antenna_height != antenna_height:
                         self.input_change_confirmation()
+                        return
                     else:
                         self._antenna_height = antenna_height
                 except ValueError:
@@ -294,10 +301,11 @@ class TEDAGNSS(MDApp):
             try:
                 obs_date = datetime.strptime(
                     self.root.current_screen.ids.observation_date.text,
-                    '%Y-%m-%d'    
+                    '%Y-%m-%d'
                 )
                 if isinstance(self._obs_date, datetime) and self._obs_date != obs_date:
                     self.input_change_confirmation()
+                    return
                 else:
                     self._obs_date = obs_date
             except ValueError:
@@ -434,10 +442,20 @@ class TEDAGNSS(MDApp):
         self.success_dialog.dismiss()
 
     def dismiss_input_changed_dialog_return(self, *args) -> None:
-        pass
+        '''
+        Function to dismiss confirmation dialog if user decides not to continue
+        '''
+
+        self.input_changed_dialog.dismiss()
 
     def dismiss_input_changed_dialog_finish(self, *args) -> None:
-        pass
+        '''
+        Function to dismiss confirmation dialog and end point
+        '''
+
+        self.finish_point_reset()
+        
+        self.input_changed_dialog.dismiss()
 
 def main():    
     TEDAGNSS().run()
