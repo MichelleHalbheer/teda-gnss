@@ -144,7 +144,8 @@ class TEDAGNSS(MDApp):
         '''
         Kivy function called to build the app
         '''
-        
+
+        # Define theme colors
         self.theme_cls.primary_palette = "Blue"
         
         # Load the app from the separate kivy definition file
@@ -189,7 +190,7 @@ class TEDAGNSS(MDApp):
         self._file_name = os.path.basename(self._file_path)
         self.root.current_screen.ids.select_file.text = self._file_name # Set the text of the file manager button
 
-        # Close manager and dsiplay the selected file path
+        # Close manager and display the selected file path
         self.exit_manager()
         toast(path)
 

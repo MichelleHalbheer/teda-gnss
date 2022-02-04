@@ -34,9 +34,7 @@ android {
         manifestPlaceholders = [:]
     }
 
-	packagingOptions {
-		doNotStrip '**/*.so'
-	}
+	
 
 	
 
