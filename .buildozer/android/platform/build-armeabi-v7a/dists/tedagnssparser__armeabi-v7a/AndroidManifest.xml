@@ -4,8 +4,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="org.terradata.tedagnssparser.tedagnssparser"
-      android:versionCode="7211"
-      android:versionName="0.1"
+      android:versionCode="7214"
+      android:versionName="0.4"
       android:installLocation="auto">
 
     <supports-screens
