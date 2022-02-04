@@ -82,6 +82,9 @@ WindowManager:
                 disabled: True
                 
             MDLabel:
-                text: "Dateien werden im interenen Gerätespeicher und ./Documents/Terradata_GNNS_Parser_Exports abgelegt"
-                pos_hint:  
+                id: storage_path_info
+                text: "Konvertierte Dateien werden im interenen Gerätespeicher unter [font=DroidSansMono]./Documents/Terradata_GNNS_Parser_Exports[/font] abgelegt."
+                size_hint: 1, None
+                pos_hint:  {'center_x': .5, 'center_y': .6}
+                markup: True
     

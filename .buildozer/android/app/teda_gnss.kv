@@ -77,10 +77,14 @@ WindowManager:
                 size_hint: 1, None
                 icon: "content-save"
                 pos_hint: {'center_x': .5, 'center_y': .6}
-                on_release: app.finish_point_reset()
+                on_release: app.show_confirm_reset_dialog()
                 opacity: 0
                 disabled: True
                 
             MDLabel:
-                text: "Dateien werden im interenen Gerätespeicher und ./Documents/Terradata_GNNS_Parser_Exports abgelegt"     
+                id: storage_path_info
+                text: "Konvertierte Dateien werden im interenen Gerätespeicher unter [font=DroidSansMono]./Documents/Terradata_GNNS_Parser_Exports[/font] abgelegt"
+                size_hint: 1, None
+                pos_hint:  {'center_x': .5, 'center_y': .6}
+                markup: True
     

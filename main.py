@@ -18,7 +18,7 @@ from android.permissions import request_permissions, Permission
 from datetime import datetime
 import json
 import os
-import glob
+import shutil
 
 from file_handler import ReachHandler
 
@@ -48,11 +48,6 @@ class TEDAGNSS(MDApp):
         self._recording_date = None
         self._handler = None
         self._project_number = None
-
-        # Load config file
-        f = open(os.path.join(os.path.dirname(__file__), 'config_template.json'))
-        self._config = json.load(f)
-        f.close()
 
         # Bind for opening file manager
         Window.bind(on_keyboard=self.events)
@@ -115,6 +110,7 @@ class TEDAGNSS(MDApp):
                 ],
             )
 
+        # Define dialog to prompt if point should be closed when input changed
         self.input_changed_dialog = MDDialog(
                 text='Eine oder mehrere Eingaben haben sich geändert. Wenn du fortfährst wird der bisherige Punkt abgeschlossen und die Daten abgelegt. Möchtest du frotfahren',
                 buttons=[
@@ -135,13 +131,8 @@ class TEDAGNSS(MDApp):
         # Android specific: Request permissions to read and write files
         request_permissions([Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE])
         # Define storage path where app have writing rights on Android
-        self.primary_external_storage_path = primary_external_storage_path()
-
-        # Purge app storage path
-        app_storage_files = glob.glob(app_storage_path())
-        for file in app_storage_files:
-            os.remove(file)
-
+        self.primary_external_storage_path = primary_external_storage_path()    	
+        
     
     def on_pause(self):
         '''
@@ -158,9 +149,6 @@ class TEDAGNSS(MDApp):
         
         # Load the app from the separate kivy definition file
         self.root = Builder.load_file(os.path.join(os.path.dirname(__file__), 'teda_gnss.kv'))
-        
-        print(f'Default text:\t "{self.root.current_screen.ids.point_name.text}"')
-
 
     def file_manager_open(self) -> None:
         '''
@@ -278,7 +266,7 @@ class TEDAGNSS(MDApp):
                 self._point_name = self.root.current_screen.ids.point_name.text
         else:
             error_list.append(error_messages['point_name'])
-        
+
         # Check the antenna height
         if self.root.current_screen.ids.antenna_height.text:
                 # Check the antenna height is a number
@@ -293,7 +281,7 @@ class TEDAGNSS(MDApp):
                     error_list.append(error_messages['antenna_height'])
         else:
             error_list.append(error_messages['antenna_height'])
-            
+
         # Check the observation date
         if self.root.current_screen.ids.observation_date.text:
             # Check if the date can be parsed to a date.
@@ -322,7 +310,7 @@ class TEDAGNSS(MDApp):
             # If no file handler has been created before, create a new one
             if not self._handler:
                 self._handler = ReachHandler(name=self._point_name)
-            self._handler.parse_file(self._file_path, self._config, self._obs_date, self._antenna_height, self._project_number)
+            self._handler.parse_file(self._file_path, self._obs_date, self._antenna_height, self._project_number)
             self.success_dialog.open()
         else:
             # If any error has been detected, show a dialog
@@ -362,6 +350,7 @@ class TEDAGNSS(MDApp):
         Function to dismiss the error dialog.
         Provided by the KivyMD documentation.
         '''
+
         self.error_dialog.dismiss()
 
     def dismiss_success_dialog(self, *args) -> None:
@@ -412,7 +401,7 @@ class TEDAGNSS(MDApp):
         '''
 
         # Create the zip archive
-        self._handler.zip_exports(self._config, self._project_number, self._obs_date)
+        self._handler.zip_exports(self._project_number, self._obs_date)
 
         # Reset the variables storing the information
         self._file_name, self._obs_date, self._antenna_height, self._point_name, self._project_number = [None]*5
@@ -425,6 +414,23 @@ class TEDAGNSS(MDApp):
 
         # Remove the file handler as it is specific for any given point
         self._handler = None
+
+    def finish_point(self) -> None:
+        '''
+        Function to finish conversion for a given point and date.
+        This creates a zip archive from the previously parsed files and stores it in a persistent directory.
+        '''
+
+        # Create zip archive
+        self._handler.zip_exports(self._project_number, self._obs_date)
+
+        # Reset the variables storing the information
+        self._file_name, self._obs_date, self._antenna_height, self._point_name, self._project_number = [None] * 5
+
+        # Remove the file handler as it is specific for any given point
+        self._handler = None
+
+        self.parse_file()
 
     def dismiss_success_dialog_add_more(self, *args) -> None:
         '''
@@ -453,11 +459,11 @@ class TEDAGNSS(MDApp):
         Function to dismiss confirmation dialog and end point
         '''
 
-        self.finish_point_reset()
+        self.finish_point()
         
         self.input_changed_dialog.dismiss()
 
-def main():    
+def main():
     TEDAGNSS().run()
 
 if __name__ == '__main__':

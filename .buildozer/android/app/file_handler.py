@@ -32,8 +32,8 @@ class ReachHandler(GnssDevice):
         self._export_id = 1 if self._last_export.day != request_time.day else self._export_id + 1
         return os.path.join(f'{self._name}', f'{request_time.year - 2000}{request_time.month:02d}{request_time.day:02d}{self._name}.{self._export_id - 1:03d}')
 
-    def parse_file(self, file_path, config, recording_time, antenna_height, project_number):
-        extract_path = config.get('tmp_path')
+    def parse_file(self, file_path, recording_time, antenna_height, project_number):
+        extract_path = './tmp'
 
         # Unpack and export files
         zip_file = ZipFile(file_path)
@@ -61,7 +61,7 @@ class ReachHandler(GnssDevice):
                 json.dump(meta_dict, meta_file)
 
 
-    def zip_exports(self, config, project_number, obs_date):
+    def zip_exports(self, project_number, obs_date):
         export_dir = os.path.join(app_storage_path(), self._name)
         
         date_string = datetime.datetime.strftime(obs_date, '%y%m%d')
