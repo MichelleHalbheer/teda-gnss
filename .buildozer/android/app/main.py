@@ -131,7 +131,12 @@ class TEDAGNSS(MDApp):
         # Android specific: Request permissions to read and write files
         request_permissions([Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE])
         # Define storage path where app have writing rights on Android
-        self.primary_external_storage_path = primary_external_storage_path()    	
+        self.primary_external_storage_path = primary_external_storage_path()
+        
+        _tmp = os.path.abspath('./tmp')
+        if os.path.exists(_tmp):
+            for file in os.listdir(_tmp):
+                os.remove(os.path.join(_tmp, file))
         
     
     def on_pause(self):
