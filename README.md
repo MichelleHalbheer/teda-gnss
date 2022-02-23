@@ -59,3 +59,19 @@ Für das finale Packaging wird der folgende Command benötigt.
 ```
 buildozer -v android release
 ```
+Anschliessend an die Erstellung der APK muss diese signiert werden, damit die Nutzergeräte deren Installation erlauben. Folgende Schritte müssen dazu gemacht werden.
+1. Keystore generieren
+2. Release APK erstellen
+3. APK signieren
+4. Zip-Align APK
+
+Schrit 1 ist dabei einmalig, die erstellten Keys haben eine Gültigkeit von 10000 Tagen. Die Release APK wurde wie zuvor erläutert bereits erstellt.</br>
+Die APK wird mit folgendem Command signiert.
+```
+cd ~/gnss-parser
+jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/gnss-parser/keystores/teda-gnss-parser.keystore ~/gnss-parser/teda-gnss/bin/tedagnssparser-0.4-armeabi-v7a-release-unsigned.apk
+```
+Dabei muss der genaue Name der APK an die jeweiligen neuen Versionen angeglichen werden. Anschliessend muss mit folgendem Command ein zipalign durchgeführt werden, womit eine APK generiert wird, die theoretisch auf dem Play Store aufgeschaltet werden könnte.
+```
+~/.buildozer/android/platform/android-sdk/build-tools/32.1.0-rc1/zipalign -v 4 ~/gnss-parser/teda-gnss/bin/tedagnssparser-0.4-armeabi-v7a-release-unsigned.apk ~/gnss-parser/teda-gnss/bin/tedagnssparser.apk
+```
